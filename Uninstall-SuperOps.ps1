@@ -4,9 +4,12 @@ function Convert-MSIProductCodeToInstallerKey {
     $guid = $guid.Trim('{}')
     $parts = $guid.Split('-')
 
-    $p1 = ($parts[0][6..7] + $parts[0][4..5] + $parts[0][2..3] + $parts[0][0..1]) -join ''
-    $p2 = ($parts[1][2..3] + $parts[1][0..1]) -join ''
-    $p3 = ($parts[2][2..3] + $parts[2][0..1]) -join ''
+    # Reverse byte pairs in the first three sections
+    $p1 = ($parts[0] -split '(.{2})' | Where-Object { $_ } | [array]::Reverse($_); $_) -join ''
+    $p2 = ($parts[1] -split '(.{2})' | Where-Object { $_ } | [array]::Reverse($_); $_) -join ''
+    $p3 = ($parts[2] -split '(.{2})' | Where-Object { $_ } | [array]::Reverse($_); $_) -join ''
+
+    # The last two sections are NOT reversed as groups — only byte‑swapped
     $p4 = ($parts[3][0..1] + $parts[3][2..3]) -join ''
     $p5 = ($parts[4][0..1] + $parts[4][2..3] + $parts[4][4..5] + $parts[4][6..7] + $parts[4][8..9] + $parts[4][10..11]) -join ''
 
