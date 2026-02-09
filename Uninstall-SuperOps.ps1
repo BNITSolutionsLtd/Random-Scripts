@@ -1,9 +1,3 @@
-﻿<#  
-    SuperOps RMM – Full Manual Removal Script
-    Author: Ben (MSP)
-    Purpose: Completely remove SuperOps RMM from Windows endpoints.
-#>
-
 Write-Host "=== SuperOps RMM Full Removal Script Starting ==="
 
 # --- 1. Stop and Remove Services ---
@@ -43,7 +37,8 @@ foreach ($path in $paths) {
 # --- 4. Remove Registry Keys ---
 $regPaths = @(
     "HKLM:\SOFTWARE\SuperOps",
-    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SuperOps"
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SuperOps",
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{3BB93941-0FBF-4E6E-CFC2-01C0FA4F9301}"
 )
 
 foreach ($reg in $regPaths) {
