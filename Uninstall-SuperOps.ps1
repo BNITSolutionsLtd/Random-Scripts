@@ -1,3 +1,20 @@
+function Convert-MSIProductCodeToInstallerKey {
+    param([string]$guid)
+
+    $guid = $guid.Trim('{}')
+    $parts = $guid.Split('-')
+
+    $p1 = ($parts[0][6..7] + $parts[0][4..5] + $parts[0][2..3] + $parts[0][0..1]) -join ''
+    $p2 = ($parts[1][2..3] + $parts[1][0..1]) -join ''
+    $p3 = ($parts[2][2..3] + $parts[2][0..1]) -join ''
+    $p4 = ($parts[3][0..1] + $parts[3][2..3]) -join ''
+    $p5 = ($parts[4][0..1] + $parts[4][2..3] + $parts[4][4..5] + $parts[4][6..7] + $parts[4][8..9] + $parts[4][10..11]) -join ''
+
+    return "$p1$p2$p3$p4$p5"
+}
+
+#Convert-MSIProductCodeToInstallerKey "{3BB93941-0FBF-4E6E-CFC2-01C0FA4F9301}"
+$SuperOpsProductCode = Convert-MSIProductCodeToInstallerKey ((Get-WmiObject -Class Win32_Product -Filter "Name LIKE '%SuperOps%'").IdentifyingNumber)
 Write-Host "=== SuperOps RMM Full Removal Script Starting ==="
 
 # --- 1. Stop and Remove Services ---
@@ -41,7 +58,8 @@ $regPaths = @(
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{3BB93941-0FBF-4E6E-CFC2-01C0FA4F9301}",
     "HKLM:\SYSTEM\ControlSet002\Services\superops",
     "HKLM:\SYSTEM\ControlSet002\Services\superops Updater",
-    "HKEY_CLASSES_ROOT\Installer\Products\14939BB3FBF0E6E4FC2C100CAFF43910"
+    "HKEY_CLASSES_ROOT\Installer\Products\14939BB3FBF0E6E4FC2C100CAFF43910",
+    "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\$SuperOpsProductCode"
 )
 
 foreach ($reg in $regPaths) {
