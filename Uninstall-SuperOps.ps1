@@ -38,7 +38,10 @@ foreach ($path in $paths) {
 $regPaths = @(
     "HKLM:\SOFTWARE\SuperOps",
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SuperOps",
-    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{3BB93941-0FBF-4E6E-CFC2-01C0FA4F9301}"
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{3BB93941-0FBF-4E6E-CFC2-01C0FA4F9301}",
+    "HKLM:\SYSTEM\ControlSet002\Services\superops",
+    "HKLM:\SYSTEM\ControlSet002\Services\superops Updater",
+    "HKEY_CLASSES_ROOT\Installer\Products\14939BB3FBF0E6E4FC2C100CAFF43910"
 )
 
 foreach ($reg in $regPaths) {
