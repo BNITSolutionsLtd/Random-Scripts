@@ -14,9 +14,11 @@ function Convert-MSIProductCodeToInstallerKey {
 }
 
 #Convert-MSIProductCodeToInstallerKey "{3BB93941-0FBF-4E6E-CFC2-01C0FA4F9301}"
-$SuperOpsProductCode = Convert-MSIProductCodeToInstallerKey ((Get-WmiObject -Class Win32_Product -Filter "Name LIKE '%SuperOps%'").IdentifyingNumber)
-Write-Host "=== SuperOps RMM Full Removal Script Starting ==="
+$SuperOpsProductCode = (Get-WmiObject -Class Win32_Product -Filter "Name LIKE '%SuperOps%'").IdentifyingNumber
+$SuperOpsProductCode = Convert-MSIProductCodeToInstallerKey $SuperOpsProductCode
 
+Write-Host "=== SuperOps RMM Full Removal Script Starting ==="
+Write-Host "Found SuperOps Installer Key: $SuperOpsProductCode"
 # --- 1. Stop and Remove Services ---
 $services = @(
     "SuperOps Updater",
@@ -58,9 +60,13 @@ $regPaths = @(
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{3BB93941-0FBF-4E6E-CFC2-01C0FA4F9301}",
     "HKLM:\SYSTEM\ControlSet002\Services\superops",
     "HKLM:\SYSTEM\ControlSet002\Services\superops Updater",
-    "HKEY_CLASSES_ROOT\Installer\Products\14939BB3FBF0E6E4FC2C100CAFF43910",
-    "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\$SuperOpsProductCode"
+    "HKEY_CLASSES_ROOT\Installer\Products\14939BB3FBF0E6E4FC2C100CAFF43910"
 )
+
+# Only append the dynamic path if the variable actually contains something
+if ($SuperOpsProductCode) {
+    $regPaths += "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\$SuperOpsProductCode"
+}
 
 foreach ($reg in $regPaths) {
     if (Test-Path $reg) {
