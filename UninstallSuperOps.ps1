@@ -43,7 +43,7 @@ foreach ($path in $paths) {
 # --- 4. Remove Registry Keys ---
 $regPaths = @(
     "HKLM:\SOFTWARE\SuperOps",
-    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SuperOps",
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SuperOps"
 )
 
 foreach ($reg in $regPaths) {
