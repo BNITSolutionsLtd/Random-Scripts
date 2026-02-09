@@ -59,7 +59,7 @@ $superOpsKey = Get-ChildItem $installerRoot -ErrorAction SilentlyContinue | ForE
 if ($superOpsKey) {
     Write-Host "Found SuperOps RMM installer key: $superOpsKey"
     Write-Host "Removing key..."
-    #Remove-Item -Path $superOpsKey -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path $superOpsKey -Recurse -Force -ErrorAction SilentlyContinue
 } else {
     Write-Host "SuperOps RMM installer key not found in MSI database."
 }
