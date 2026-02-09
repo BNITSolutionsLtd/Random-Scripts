@@ -1,27 +1,5 @@
-function Convert-MSIProductCodeToInstallerKey {
-    param([string]$guid)
-
-    $guid = $guid.Trim('{}')
-    $parts = $guid.Split('-')
-
-    # Reverse byte pairs in the first three sections
-    $p1 = ($parts[0] -split '(.{2})' | Where-Object { $_ } | [array]::Reverse($_); $_) -join ''
-    $p2 = ($parts[1] -split '(.{2})' | Where-Object { $_ } | [array]::Reverse($_); $_) -join ''
-    $p3 = ($parts[2] -split '(.{2})' | Where-Object { $_ } | [array]::Reverse($_); $_) -join ''
-
-    # The last two sections are NOT reversed as groups — only byte‑swapped
-    $p4 = ($parts[3][0..1] + $parts[3][2..3]) -join ''
-    $p5 = ($parts[4][0..1] + $parts[4][2..3] + $parts[4][4..5] + $parts[4][6..7] + $parts[4][8..9] + $parts[4][10..11]) -join ''
-
-    return "$p1$p2$p3$p4$p5"
-}
-
-#Convert-MSIProductCodeToInstallerKey "{3BB93941-0FBF-4E6E-CFC2-01C0FA4F9301}"
-$SuperOpsProductCode = (Get-WmiObject -Class Win32_Product -Filter "Name LIKE '%SuperOps%'").IdentifyingNumber
-$SuperOpsProductCode = Convert-MSIProductCodeToInstallerKey $SuperOpsProductCode
-
 Write-Host "=== SuperOps RMM Full Removal Script Starting ==="
-Write-Host "Found SuperOps Installer Key: $SuperOpsProductCode"
+
 # --- 1. Stop and Remove Services ---
 $services = @(
     "SuperOps Updater",
@@ -66,9 +44,24 @@ $regPaths = @(
     "HKEY_CLASSES_ROOT\Installer\Products\14939BB3FBF0E6E4FC2C100CAFF43910"
 )
 
-# Only append the dynamic path if the variable actually contains something
-if ($SuperOpsProductCode) {
-    $regPaths += "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\$SuperOpsProductCode"
+$installerRoot = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products"
+# Search all product keys for one with DisplayName = "SuperOps RMM"
+$superOpsKey = Get-ChildItem $installerRoot -ErrorAction SilentlyContinue | ForEach-Object {
+    $installProps = Join-Path $_.PsPath "InstallProperties"
+    if (Test-Path $installProps) {
+        $props = Get-ItemProperty $installProps -ErrorAction SilentlyContinue
+        if ($props.DisplayName -eq "SuperOps RMM") {
+            return $_.PsPath
+        }
+    }
+}
+
+if ($superOpsKey) {
+    Write-Host "Found SuperOps RMM installer key: $superOpsKey"
+    Write-Host "Removing key..."
+    #Remove-Item -Path $superOpsKey -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+    Write-Host "SuperOps RMM installer key not found in MSI database."
 }
 
 foreach ($reg in $regPaths) {
